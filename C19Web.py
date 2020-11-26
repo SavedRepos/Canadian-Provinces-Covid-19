@@ -89,19 +89,19 @@ def df_days(dfProv, last_date, time_frame):
     first_date = parser.parse('2020-03-01')
     in_date = parser.parse(last_date)
 
-    if time_frame == time_frames[0]:
+    if time_frame == time_frames[1]:
         date_after = in_date - relativedelta(weeks=1)
-    elif time_frame == time_frames[1]:
-        date_after = in_date - relativedelta(weeks=2)
     elif time_frame == time_frames[2]:
-        date_after = in_date - relativedelta(weeks=3)
+        date_after = in_date - relativedelta(weeks=2)
     elif time_frame == time_frames[3]:
-        date_after = in_date - relativedelta(months=1)
+        date_after = in_date - relativedelta(weeks=3)
     elif time_frame == time_frames[4]:
-        date_after = in_date - relativedelta(months=3)
+        date_after = in_date - relativedelta(months=1)
     elif time_frame == time_frames[5]:
-        date_after = in_date - relativedelta(months=6)
+        date_after = in_date - relativedelta(months=3)
     elif time_frame == time_frames[6]:
+        date_after = in_date - relativedelta(months=6)
+    elif time_frame == time_frames[0]:
         date_after = first_date
     else:
         date_after = first_date
