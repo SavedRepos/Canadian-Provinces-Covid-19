@@ -505,7 +505,7 @@ def plotGroup(countryGroup):
 
         #plt.xticks(rotation=45)
         #ax = plt.gca()
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(90))
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(120))
         #ax.set_title(reportTitle, pad=80)
 
         #column = country.df["confirmedNew"]
