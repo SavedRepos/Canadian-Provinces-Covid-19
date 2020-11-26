@@ -127,17 +127,17 @@ def stSetup():
     )
 
     st.header('Covid-19 Tracker')
-    st.sidebar.subheader('Options')
-    selected_provinces = st.sidebar.multiselect(
-        'Select province(s):',
-        provinces,
-        default=provinces[0]
-    )
-    #print('Provinces:', selected_provinces)
-    time_frame = st.sidebar.selectbox(
-        'Select the amount of data:',
-        time_frames
-    )
+#     st.sidebar.subheader('Options')
+#     selected_provinces = st.sidebar.multiselect(
+#         'Select province(s):',
+#         provinces,
+#         default=provinces[0]
+#     )
+#     #print('Provinces:', selected_provinces)
+#     time_frame = st.sidebar.selectbox(
+#         'Select the amount of data:',
+#         time_frames
+#     )
     return
 
 # #######################################################################################
