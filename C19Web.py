@@ -42,6 +42,23 @@ bc_cases_url = 'http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Das
 # date[], confirmed[], confirmedNew[], confirmedNewMean[], deaths[], deathsNew[], deathsNewMean[]            
 base_url = 'https://jpaulhart.github.io'
 
+#-------------------------------------------------------------------------
+# Contains a collection or group of countries in one plot 
+#-------------------------------------------------------------------------
+
+class Countries():
+    def __init__(self, groupName, countryList = []):
+        self.groupName = groupName
+        self.countryList = countryList
+    
+#-------------------------------------------------------------------------
+# Country class contains all the input data required to produce a plot
+#-------------------------------------------------------------------------
+
+class Country():
+  def __init__(self, name):
+    self.name = name
+
 # #######################################################################################
 # Load data
 # #######################################################################################
@@ -127,17 +144,17 @@ def stSetup():
     )
 
     st.header('Covid-19 Tracker')
-#     st.sidebar.subheader('Options')
-#     selected_provinces = st.sidebar.multiselect(
-#         'Select province(s):',
-#         provinces,
-#         default=provinces[0]
-#     )
-#     #print('Provinces:', selected_provinces)
-#     time_frame = st.sidebar.selectbox(
-#         'Select the amount of data:',
-#         time_frames
-#     )
+    # st.sidebar.subheader('Options')
+    # selected_provinces = st.sidebar.multiselect(
+    #     'Select province(s):',
+    #     provinces,
+    #     default=provinces[0]
+    # )
+    # #print('Provinces:', selected_provinces)
+    # time_frame = st.sidebar.selectbox(
+    #     'Select the amount of data:',
+    #     time_frames
+    # )
     return
 
 # #######################################################################################
@@ -295,7 +312,7 @@ def stSection2():
     dfqu = pd.read_csv(urllib.parse.urljoin(base_url, 'Quebec.csv'))
     dfqu['ConfirmedNewPer1M'] = dfqu['ConfirmedNewMean'] / prov_pop['AL']
     dfqu['DeathsNewPer1M']    = dfqu['DeathsNewMean'] / prov_pop['AL']
-    print(dfal.info())
+    #print(dfal.info())
 
     col1, col2 = st.beta_columns(2)
     #with col1:
@@ -356,6 +373,168 @@ def stSection2():
     st.pyplot(fig1)
     plt.close()
 
+# #######################################################################################
+# Section 3
+#     Other countries
+# #######################################################################################
+
+def stSection3():
+    global last_date
+
+    st.markdown('----')
+    st.markdown(f'#### Countries')
+    st.markdown(f'###### Report Date: {last_date}')
+
+    allGroups = createGroups()
+
+    for group in allGroups:
+        plotGroup(group)
+
+
+#-------------------------------------------------------------------------
+# Create groups of countries for plotting
+#-------------------------------------------------------------------------
+
+def createGroups():
+
+    # North America
+    canada = Country('Canada')
+    mexico = Country('Mexico')
+    usa = Country('US')
+    am = [canada, mexico, usa]
+
+    northAmerica = Countries('North America', am)
+
+    # Western Europe
+    france = Country('France')
+    italy = Country('Italy')
+    portugal = Country('Portugal')
+    spain = Country('Spain')
+    we = [france, italy, portugal, spain]
+
+    westernEurope = Countries('Western Europe', we)
+
+    # Eastern Europe
+    bosnia = Country('Bosnia and Herzegovina')
+    bulgaria = Country('Bulgaria')
+    croatia = Country('Croatia')
+    serbia = Country('Serbia')
+    ee = [bosnia, bulgaria, croatia, serbia]
+
+    easternEurope = Countries('Eastern Europe', ee)
+
+    # Eastern Med
+    albania = Country('Albania')
+    cyprus = Country('Cyprus')
+    greece = Country('Greece')
+    turkey = Country('Turkey')
+    em = [albania, cyprus, greece, turkey]
+
+    easternMed = Countries('Eastern Med', em)
+
+
+    # North Africa
+    algeria = Country('Algeria')
+    morocco = Country('Morocco')
+    oman = Country('Oman')
+    tunisia = Country('Tunisia')
+    na = [algeria, morocco, oman, tunisia]
+
+    northAfrica = Countries('North Africa', na)
+
+    # South America
+    argentina = Country('Argentina')
+    bolivia = Country('Bolivia')
+    chile = Country('Chile')
+    uruguay = Country('Uruguay')
+    sa = [argentina, bolivia, chile, uruguay]
+
+    southAmerica = Countries('South America', sa)
+
+    # Oceana
+    australia = Country('Australia')
+    newZealand = Country('New Zealand')
+    oc = [australia, newZealand]
+
+    oceana = Countries('Oceana', oc)
+
+    # Asia
+    thailand = Country('Thailand')
+    vietnam = Country('Vietnam')
+    se = [thailand, vietnam]
+
+    asia = Countries('Asia', se)
+
+    allGroups = [northAmerica, westernEurope, easternEurope, easternMed, northAfrica, southAmerica, oceana, asia]
+
+    return allGroups
+
+#-------------------------------------------------------------------------
+# Plot a group of countries
+#-------------------------------------------------------------------------
+
+def plotGroup(countryGroup):
+    global last_date
+
+    plotFileName = countryGroup.groupName.replace(' ', '-')
+    #plotPath = outputPngDir + '/' + plotFileName + '.png'
+
+    #print('Plotting', countryGroup.groupName, 'to', plotPath)
+    
+    #plt.clf()
+    fig1 = plt.figure(1, figsize=(15, 5))
+    reportTitle = countryGroup.groupName + ' Confirmed New Cases'
+    fig1.suptitle(reportTitle, fontsize=10)
+
+    subPlotRows = 1
+    subPlotCols = len(countryGroup.countryList)
+    subPlotIndex = 0
+    
+    for country in countryGroup.countryList:
+        subPlotIndex += 1
+
+        df = getDfForCountry(country.name)
+
+        #subPlot, df, cty, yLim):
+        #plt.subplot(subPlotRows, subPlotCols, subPlotIndex)
+        ax = fig1.add_subplot(subPlotRows, subPlotCols, subPlotIndex)
+
+        plt.title(country.name, fontsize='small', va='bottom')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
+
+        #plt.xticks(rotation=45)
+        #ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(90))
+        #ax.set_title(reportTitle, pad=80)
+
+        #column = country.df["confirmedNew"]
+        #maxValue = column.max()
+        #print("country:", country.name, "Country.Max:", country.yAxisMax, "Actual Max:", maxValue)
+
+        ax.set_ylim(bottom=0, auto=True)
+        #plt.ylim(0, maxValue)
+        plt.bar(df['Date'], df['ConfirmedNew'], label='New Confirmed')
+        #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
+
+        # Add a legend
+        #plt.legend(['10 Day Average', 'Confirmed New'])
+        
+    st.pyplot(fig1)
+    plt.close(fig1)
+
+#-------------------------------------------------------------------------
+# Get dataframe for a country
+#-------------------------------------------------------------------------
+
+def getDfForCountry(countryName):
+    global last_date
+
+    country = countryName.replace(' ', '%20')
+    df = pd.read_csv(urllib.parse.urljoin(base_url, f'{country}.csv'))
+
+    return df
+
 # ############################################################################
 # Entry Point
 # ############################################################################
@@ -363,5 +542,7 @@ def stSection2():
 stSetup()
 stSection1()
 stSection2()
+stSection3()
+
 
 
