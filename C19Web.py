@@ -57,10 +57,11 @@ provinces = ('British Columbia',
              'Newfoundland and Labrador',
              'New Brunswick',
              'Nova Scotia'
+             'Prince Edward Island'
             )
 selected_provinces = ('British Columbia') 
 
-time_frames = ('1 Week', '2 Weeks', '3 Weeks', '1 Month', '3 Months', '6 Months', 'All')
+time_frames = ('All', '1 Week', '2 Weeks', '3 Weeks', '1 Month', '3 Months', '6 Months')
 time_frame = 'All'
 
 last_date = ''
