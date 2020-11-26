@@ -514,7 +514,7 @@ def plotGroup(countryGroup):
 
         ax.set_ylim(bottom=0, auto=True)
         #plt.ylim(0, maxValue)
-        plt.bar(df['Date'], df['ConfirmedNew'], label='New Confirmed')
+        plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
         #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
 
         # Add a legend
