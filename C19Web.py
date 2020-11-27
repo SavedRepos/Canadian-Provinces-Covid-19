@@ -483,8 +483,8 @@ def plotGroup(countryGroup):
     
     #plt.clf()
     fig1 = plt.figure(1, figsize=(15, 5))
-    reportTitle = countryGroup.groupName + ' Confirmed New Cases'
-    fig1.suptitle(reportTitle, fontsize=10)
+    reportTitle = countryGroup.groupName + ' Confirmed New Cases - Smoothed'
+    fig1.suptitle(reportTitle, fontsize=14)
 
     subPlotRows = 1
     subPlotCols = len(countryGroup.countryList)
@@ -495,30 +495,17 @@ def plotGroup(countryGroup):
 
         df = getDfForCountry(country.name)
 
-        #subPlot, df, cty, yLim):
-        #plt.subplot(subPlotRows, subPlotCols, subPlotIndex)
         ax = fig1.add_subplot(subPlotRows, subPlotCols, subPlotIndex)
 
         plt.title(country.name, fontsize='small', va='bottom')
         plt.xlabel="Date"
         plt.ylabel="Number"
 
-        #plt.xticks(rotation=45)
-        #ax = plt.gca()
         ax.xaxis.set_major_locator(ticker.MultipleLocator(120))
-        #ax.set_title(reportTitle, pad=80)
-
-        #column = country.df["confirmedNew"]
-        #maxValue = column.max()
-        #print("country:", country.name, "Country.Max:", country.yAxisMax, "Actual Max:", maxValue)
 
         ax.set_ylim(bottom=0, auto=True)
-        #plt.ylim(0, maxValue)
-        plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
+        plt.plot(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
         #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
-
-        # Add a legend
-        #plt.legend(['10 Day Average', 'Confirmed New'])
         
     st.pyplot(fig1)
     plt.close(fig1)
