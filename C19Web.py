@@ -325,7 +325,7 @@ def stSection2():
     # Create Confirmed New Plot
     #-------------------------------------------------------------------------
 
-    plt.title('Confirmed New Cases per Million', fontsize='medium')
+    plt.title('Confirmed New Cases per Million', fontsize='14')
     plt.xlabel="Date"
     plt.ylabel="Number"
 
@@ -354,7 +354,7 @@ def stSection2():
     # Create Deaths New Plot
     #-------------------------------------------------------------------------
 
-    plt.title('New Deaths per Million', fontsize='medium')
+    plt.title('New Deaths per Million', fontsize='14')
     plt.xlabel="Date"
     plt.ylabel="Number"
 
