@@ -504,7 +504,7 @@ def plotGroup(countryGroup):
         ax.xaxis.set_major_locator(ticker.MultipleLocator(120))
 
         ax.set_ylim(bottom=0, auto=True)
-        plt.plot(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
+        plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
         #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
         
     st.pyplot(fig1)
