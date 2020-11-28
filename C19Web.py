@@ -461,7 +461,8 @@ def createGroups():
     # Asia
     thailand = Country('Thailand')
     vietnam = Country('Vietnam')
-    indonesia = Country('French Polynesia')
+    polynesia = Country('French Polynesia')
+    indonesia = Country('Indonesia')
     se = [thailand, vietnam, indonesia]
 
     asia = Countries('Asia', se)
