@@ -73,7 +73,7 @@ class Country():
 
 @st.cache
 def read_csv(url):
-    return pd.read_csv(url)
+    return pd.read_csv(url.replace(' ', '%20'))
 
 # #######################################################################################
 # Setup global data
