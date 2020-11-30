@@ -164,8 +164,10 @@ def stSetup():
 
     # Setup sidebar
     st.sidebar.markdown('## Options')
+    st.sidebar.markdown('### Select Time Frame')
     time_frame = st.sidebar.selectbox('Select analysis time period:', time_frames)
 
+    st.sidebar.markdown('### Select Countries')
     countries = st.sidebar.multiselect('Select countries:', 
                                         allCountries,
                                         ['Canada', 'Italy', 'Spain', 'Portugal', 'Thailand', 'Uruguay']
