@@ -425,7 +425,7 @@ def stSection3():
         dfCountry = dfIndex[dfIndex['Country'] == cty]
         file_name = dfCountry['File'].values[0]
         file_url = urllib.parse.urljoin(base_url, file_name)
-        df = pd.read_csv(file_url)
+        df = read_csv(file_url)
         plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
 
     # Add a legend
@@ -448,7 +448,7 @@ def stSection3():
         dfCountry = dfIndex[dfIndex['Country'] == cty]
         file_name = dfCountry['File'].values[0]
         file_url = urllib.parse.urljoin(base_url, file_name)
-        df = pd.read_csv(file_url)
+        df = read_csv(file_url)
         plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
 
     # Add a legend
