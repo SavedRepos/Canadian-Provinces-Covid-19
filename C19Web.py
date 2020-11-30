@@ -72,7 +72,8 @@ class Country():
 
 @st.cache
 def read_csv(url):
-    return pd.read_csv(url)
+    fixed_url = url.replace(' ', '%20')
+    return pd.read_csv(fixed_url)
 
 # #######################################################################################
 # Setup global data
@@ -422,7 +423,7 @@ def stSection3():
         dfCountry = dfIndex[dfIndex['Country'] == cty]
         file_name = dfCountry['File'].values[0]
         file_url = urllib.parse.urljoin(base_url, file_name)
-        df = pd.read_csv(file_url)
+        df = read_csv(file_url)
         plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
 
     # Add a legend
@@ -445,7 +446,7 @@ def stSection3():
         dfCountry = dfIndex[dfIndex['Country'] == cty]
         file_name = dfCountry['File'].values[0]
         file_url = urllib.parse.urljoin(base_url, file_name)
-        df = pd.read_csv(file_url)
+        df = read_csv(file_url)
         plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
 
     # Add a legend
