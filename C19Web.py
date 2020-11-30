@@ -202,10 +202,10 @@ def stSection1():
     #st.markdown(f'###### Report Date: {last_date}')
 
     col1, col2 = st.beta_columns(2)
-    with col1:
-        stProvTable(dfProv)
-    with col2:
-        stProvGraphs(dfProv)
+    #with col1:
+    stProvTable(dfProv)
+    #with col2:
+    stProvGraphs(dfProv)
 
 #-----------------------------------------------------------------------------
 # Provincial Stats Graph for specified time span
