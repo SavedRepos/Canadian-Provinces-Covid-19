@@ -270,7 +270,8 @@ def stProvTable(dfProv):
         cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th></tr>\n'
         #cases_data += '| :----- | ----------: | --------: | -----------: | ---------: |\n'
         row_count = 0
-        for index, row in dfProv.iterrows():
+        dfTable = dfProv.sort_values(['Date'], ascending='False')
+        for index, row in dfTable.iterrows():
             date = row['Date'] 
             confirmed = row['Confirmed']
             confirmed = "{:,}".format(confirmed)
