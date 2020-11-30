@@ -19,7 +19,6 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
-import os
 import pandas as pd
 import streamlit as st
 import urllib
@@ -73,8 +72,7 @@ class Country():
 
 @st.cache
 def read_csv(url):
-    fixed_url = url.replace(' ', '%20')
-    return pd.read_csv(fixed_url)
+    return pd.read_csv(url)
 
 # #######################################################################################
 # Setup global data
@@ -202,10 +200,10 @@ def stSection1():
     #st.markdown(f'###### Report Date: {last_date}')
 
     col1, col2 = st.beta_columns(2)
-    #with col1:
-    stProvTable(dfProv)
-    #with col2:
-    stProvGraphs(dfProv)
+    with col1:
+        stProvTable(dfProv)
+    with col2:
+        stProvGraphs(dfProv)
 
 #-----------------------------------------------------------------------------
 # Provincial Stats Graph for specified time span
@@ -267,12 +265,11 @@ def stProvTable(dfProv):
         # Table of details for last week 
         cases_data = '<div style="font-size: small">\n'
         cases_data += '<table border=1>\n'
-        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th><th colspan=2 style="text-align:center">Tests</th></tr>\n'
-        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th><th>New</th><th>Positivity</th></tr>\n'
+        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th></tr>\n'
+        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th></tr>\n'
         #cases_data += '| :----- | ----------: | --------: | -----------: | ---------: |\n'
         row_count = 0
-        dfTable = dfProv.sort_values(['Date'], ascending=False)
-        for index, row in dfTable.iterrows():
+        for index, row in dfProv.iterrows():
             date = row['Date'] 
             confirmed = row['Confirmed']
             confirmed = "{:,}".format(confirmed)
@@ -282,19 +279,6 @@ def stProvTable(dfProv):
             deaths = "{:,}".format(deaths)
             deathsNew = row['DeathsNew']
             deathsNew = "{:,}".format(deathsNew)
-    # "Reported_Date","HA","Sex","Age_Group","Classification_Reported"
-    case_Url = 'http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv'
-    dfCase = read_csv(case_Url) 
-    dfCase = df_days(dfCase, last_date, time_frame)
-    dfCase['Year_Month'] = dfCase['Reported_Date'].map(lambda reported_date: reported_date[0:7])
-    dfCase = dfCase.sort_values(by=['Reported_Date', 'HA'])
-
-    dfCrosstab = pd.crosstab(index=dfCase['Reported_Date'], columns=dfCase['HA'])
-    dfCrosstab.plot(kind='barh')
-    reportTitle = 'BC Lab Diagnosed Cases by Health Authority'
-    plt.title(reportTitle, fontsize=10)
-    fig3 = plt.figure(3, figsize=(15, 6))
-    st.pyplot(fig3)
             cases_data += f'<tr><td nowrap>{date}</td><td style="text-align:right">{confirmed}</td><td style="text-align:right">{confirmedNew}</td><td style="text-align:right">{deaths}</td><td style="text-align:right">{deathsNew}</td></tr>' + '\n'
             row_count += 1
             if row_count >= 10:
@@ -308,6 +292,19 @@ def stProvTable(dfProv):
 #-----------------------------------------------------------------------------
 
 def stBCCases(dfProv):
+    # "Reported_Date","HA","Sex","Age_Group","Classification_Reported"
+    case_Url = 'http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv'
+    dfCase = read_csv(case_Url) 
+    dfCase = df_days(dfCase, last_date, time_frame)
+    dfCase['Year_Month'] = dfCase['Reported_Date'].map(lambda reported_date: reported_date[0:7])
+    dfCase = dfCase.sort_values(by=['Reported_Date', 'HA'])
+
+    dfCrosstab = pd.crosstab(index=dfCase['Reported_Date'], columns=dfCase['HA'])
+    dfCrosstab.plot(kind='barh')
+    reportTitle = 'BC Lab Diagnosed Cases by Health Authority'
+    plt.title(reportTitle, fontsize=10)
+    fig3 = plt.figure(3, figsize=(15, 6))
+    st.pyplot(fig3)
 
 # #######################################################################################
 # Section 2
@@ -324,7 +321,7 @@ def stSection2():
     dfal = df_days(dfal, last_date, time_frame)
     dfal['ConfirmedNewPer1M'] = dfal['ConfirmedNewMean'] / prov_pop['AL']
     dfal['DeathsNewPer1M']    = dfal['DeathsNewMean'] / prov_pop['AL']
-    dfbc = read_csv(urllib.parse.urljoin(base_url, 'British Columbia.csv'))
+    dfbc = read_csv(urllib.parse.urljoin(base_url, 'British%20Columbia.csv'))
     dfbc = df_days(dfbc, last_date, time_frame)
     dfbc['ConfirmedNewPer1M'] = dfbc['ConfirmedNewMean'] / prov_pop['AL']
     dfbc['DeathsNewPer1M']    = dfbc['DeathsNewMean'] / prov_pop['AL']
@@ -425,7 +422,7 @@ def stSection3():
         dfCountry = dfIndex[dfIndex['Country'] == cty]
         file_name = dfCountry['File'].values[0]
         file_url = urllib.parse.urljoin(base_url, file_name)
-        df = read_csv(file_url)
+        df = pd.read_csv(file_url)
         plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
 
     # Add a legend
@@ -448,7 +445,7 @@ def stSection3():
         dfCountry = dfIndex[dfIndex['Country'] == cty]
         file_name = dfCountry['File'].values[0]
         file_url = urllib.parse.urljoin(base_url, file_name)
-        df = read_csv(file_url)
+        df = pd.read_csv(file_url)
         plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
 
     # Add a legend
