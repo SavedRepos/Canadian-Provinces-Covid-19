@@ -267,8 +267,8 @@ def stProvTable(dfProv):
         # Table of details for last week 
         cases_data = '<div style="font-size: small">\n'
         cases_data += '<table border=1>\n'
-        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th></tr>\n'
-        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th></tr>\n'
+        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th><th colspan=2 style="text-align:center">Tests</th></tr>\n'
+        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th><th>News</th><th>Positivity</th></tr>\n'
         #cases_data += '| :----- | ----------: | --------: | -----------: | ---------: |\n'
         row_count = 0
         dfTable = dfProv.sort_values(['Date'], ascending=False)
