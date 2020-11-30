@@ -342,61 +342,61 @@ def stSection2():
     # Create Confirmed New Plot
     #-------------------------------------------------------------------------
 
-    with col1:
+    #with col1:
 
-        st.markdown(f'##### New Cases - {time_frame}')
+    st.markdown(f'##### New Cases - {time_frame}')
 
-        fig1 = plt.figure(1, figsize=(15, 10))
+    fig1 = plt.figure(1, figsize=(15, 10))
 
-        plt.title('Confirmed New Cases per Million', fontsize='14')
-        plt.xlabel="Date"
-        plt.ylabel="Number"
+    plt.title('Confirmed New Cases per Million', fontsize='14')
+    plt.xlabel="Date"
+    plt.ylabel="Number"
 
-        #plt.xticks(rotation=45)
-        ax = plt.gca()
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+    #plt.xticks(rotation=45)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-        #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-        plt.plot(dfal['Date'], dfal['ConfirmedNewPer1M'], label='Alberta')
-        plt.plot(dfbc['Date'], dfbc['ConfirmedNewPer1M'], label='British Columbia')
-        plt.plot(dfon['Date'], dfon['ConfirmedNewPer1M'], label='Ontario')
-        plt.plot(dfqu['Date'], dfqu['ConfirmedNewPer1M'], label='Quebec')
+    #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
+    plt.plot(dfal['Date'], dfal['ConfirmedNewPer1M'], label='Alberta')
+    plt.plot(dfbc['Date'], dfbc['ConfirmedNewPer1M'], label='British Columbia')
+    plt.plot(dfon['Date'], dfon['ConfirmedNewPer1M'], label='Ontario')
+    plt.plot(dfqu['Date'], dfqu['ConfirmedNewPer1M'], label='Quebec')
 
-        # Add a legend
-        plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
-        plt.grid(b=True, which='major')
-        st.pyplot(fig1)
-        plt.close()
+    # Add a legend
+    plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
+    plt.grid(b=True, which='major')
+    st.pyplot(fig1)
+    plt.close()
 
     #-------------------------------------------------------------------------
     # Create Deaths New Plot
     #-------------------------------------------------------------------------
 
-    with col2:
+    #with col2:
 
-        st.markdown(f'##### New Deaths - {time_frame}')
+    st.markdown(f'##### New Deaths - {time_frame}')
 
-        fig1 = plt.figure(1, figsize=(15, 10))
+    fig1 = plt.figure(1, figsize=(15, 10))
 
-        plt.title('New Deaths per Million', fontsize='14')
-        plt.xlabel="Date"
-        plt.ylabel="Number"
+    plt.title('New Deaths per Million', fontsize='14')
+    plt.xlabel="Date"
+    plt.ylabel="Number"
 
-        #plt.xticks(rotation=45)
-        ax = plt.gca()
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+    #plt.xticks(rotation=45)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-        #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-        plt.plot(dfal['Date'], dfal['DeathsNewPer1M'], label='Alberta')
-        plt.plot(dfbc['Date'], dfbc['DeathsNewPer1M'], label='British Columbia')
-        plt.plot(dfon['Date'], dfon['DeathsNewPer1M'], label='Ontario')
-        plt.plot(dfqu['Date'], dfqu['DeathsNewPer1M'], label='Quebec')
+    #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
+    plt.plot(dfal['Date'], dfal['DeathsNewPer1M'], label='Alberta')
+    plt.plot(dfbc['Date'], dfbc['DeathsNewPer1M'], label='British Columbia')
+    plt.plot(dfon['Date'], dfon['DeathsNewPer1M'], label='Ontario')
+    plt.plot(dfqu['Date'], dfqu['DeathsNewPer1M'], label='Quebec')
 
-        # Add a legend
-        plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
-        plt.grid(b=True, which='major')
-        st.pyplot(fig1)
-        plt.close()
+    # Add a legend
+    plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
+    plt.grid(b=True, which='major')
+    st.pyplot(fig1)
+    plt.close()
 
 # #######################################################################################
 # Section 3
