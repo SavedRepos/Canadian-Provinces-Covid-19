@@ -267,8 +267,10 @@ def stProvTable(dfProv):
         # Table of details for last week 
         cases_data = '<div style="font-size: small">\n'
         cases_data += '<table border=1>\n'
-        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th><th colspan=2 style="text-align:center">Tests</th></tr>\n'
-        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th><th>New</th><th>Positivity</th></tr>\n'
+        #cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th><th colspan=2 style="text-align:center">Tests</th></tr>\n'
+        #cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th><th>New</th><th>Positivity</th></tr>\n'
+        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th></tr>\n'
+        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th></tr>\n'
         #cases_data += '| :----- | ----------: | --------: | -----------: | ---------: |\n'
         row_count = 0
         dfTable = dfProv.sort_values(['Date'], ascending=False)
@@ -282,19 +284,6 @@ def stProvTable(dfProv):
             deaths = "{:,}".format(deaths)
             deathsNew = row['DeathsNew']
             deathsNew = "{:,}".format(deathsNew)
-            cases_data += f'<tr><td nowrap>{date}</td><td style="text-align:right">{confirmed}</td><td style="text-align:right">{confirmedNew}</td><td style="text-align:right">{deaths}</td><td style="text-align:right">{deathsNew}</td></tr>' + '\n'
-            row_count += 1
-            if row_count >= 10:
-                cases_data += '</table>\n'
-                cases_data += '</div>\n'
-                break
-        st.markdown(cases_data, unsafe_allow_html=True)
-
-#-----------------------------------------------------------------------------
-# Provincial Stats Table
-#-----------------------------------------------------------------------------
-
-def stBCCases(dfProv):
     # "Reported_Date","HA","Sex","Age_Group","Classification_Reported"
     case_Url = 'http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv'
     dfCase = read_csv(case_Url) 
@@ -308,6 +297,19 @@ def stBCCases(dfProv):
     plt.title(reportTitle, fontsize=10)
     fig3 = plt.figure(3, figsize=(15, 6))
     st.pyplot(fig3)
+            cases_data += f'<tr><td nowrap>{date}</td><td style="text-align:right">{confirmed}</td><td style="text-align:right">{confirmedNew}</td><td style="text-align:right">{deaths}</td><td style="text-align:right">{deathsNew}</td></tr>' + '\n'
+            row_count += 1
+            if row_count >= 10:
+                cases_data += '</table>\n'
+                cases_data += '</div>\n'
+                break
+        st.markdown(cases_data, unsafe_allow_html=True)
+
+#-----------------------------------------------------------------------------
+# Provincial Stats Table
+#-----------------------------------------------------------------------------
+
+def stBCCases(dfProv):
 
 # #######################################################################################
 # Section 2
