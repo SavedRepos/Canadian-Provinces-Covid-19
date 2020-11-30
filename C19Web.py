@@ -73,7 +73,8 @@ class Country():
 
 @st.cache
 def read_csv(url):
-    return pd.read_csv(url.replace(' ', '%20'))
+    fixed_url = url.replace(' ', '%20')
+    return pd.read_csv(fixed_url)
 
 # #######################################################################################
 # Setup global data
@@ -323,7 +324,7 @@ def stSection2():
     dfal = df_days(dfal, last_date, time_frame)
     dfal['ConfirmedNewPer1M'] = dfal['ConfirmedNewMean'] / prov_pop['AL']
     dfal['DeathsNewPer1M']    = dfal['DeathsNewMean'] / prov_pop['AL']
-    dfbc = read_csv(urllib.parse.urljoin(base_url, 'British%20Columbia.csv'))
+    dfbc = read_csv(urllib.parse.urljoin(base_url, 'British Columbia.csv'))
     dfbc = df_days(dfbc, last_date, time_frame)
     dfbc['ConfirmedNewPer1M'] = dfbc['ConfirmedNewMean'] / prov_pop['AL']
     dfbc['DeathsNewPer1M']    = dfbc['DeathsNewMean'] / prov_pop['AL']
