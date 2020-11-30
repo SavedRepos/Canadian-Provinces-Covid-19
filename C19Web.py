@@ -26,12 +26,20 @@ import urllib
 
 from streamlit.elements.doc_string import CONFUSING_STREAMLIT_MODULES
 
+st.set_page_config(
+    page_title="B.C. Covid-19",
+    page_icon="😷",
+    layout="centered",
+    initial_sidebar_state="auto",
+)
+
 # 'country', 'province', 'lastDate'     
 # 'latitude', 'longitude'    
 # 'dates'        
 # 'confirmed', 'confirmedNew', 'confirmedNewMean'
 # 'deaths', 'deathsNew', 'deathsNewMean'
-index_url = 'https://jpaulhart.github.io/index.json'
+index_url_csv  = 'https://jpaulhart.github.io/Index.csv'
+index_url_json = 'https://jpaulhart.github.io/Index.json'
 
 # "Date", "Region", "New_Tests", "Total_Tests", "Positivity", "Turn_Around"
 bc_tests_url = 'http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Lab_Information.csv'
@@ -60,10 +68,20 @@ class Country():
     self.name = name
 
 # #######################################################################################
-# Load data
+# Read data and cache
 # #######################################################################################
 
-dfIndex = pd.read_json(index_url)
+@st.cache
+def read_csv(url):
+    return pd.read_csv(url)
+
+# #######################################################################################
+# Setup global data
+# #######################################################################################
+
+dfIndex = read_csv(index_url_csv)
+allCountries = dfIndex['Country'].tolist()
+countries = []
 
 provinces = ('British Columbia',
              'Alberta',
@@ -82,6 +100,9 @@ time_frames = ('All', '1 Week', '2 Weeks', '3 Weeks', '1 Month', '3 Months', '6 
 time_frame = 'All'
 
 last_date = ''
+dfLast = read_csv(urllib.parse.urljoin(base_url, 'Canada.csv'))
+dfLast = dfLast.tail(n=1)
+last_date = dfLast['Date'].values[0]
 
 # Provincial Population
 prov_pop = {
@@ -124,7 +145,7 @@ def df_days(dfProv, last_date, time_frame):
         date_after = first_date
 
     out_date = date_after.strftime("%Y-%m-%d")
-    dfOut = dfProv[dfProv['date'] >= out_date]
+    dfOut = dfProv[dfProv['Date'] >= out_date]
     return dfOut
 
 # #######################################################################################
@@ -135,26 +156,20 @@ def stSetup():
     global selected_provinces
     global time_frame
     global last_date
-
-    st.set_page_config(
-        page_title="B.C. Covid-19",
-        page_icon="😷",
-        layout="centered",
-        initial_sidebar_state="auto",
-    )
+    global countries
 
     st.header('Covid-19 Tracker')
-    # st.sidebar.subheader('Options')
-    # selected_provinces = st.sidebar.multiselect(
-    #     'Select province(s):',
-    #     provinces,
-    #     default=provinces[0]
-    # )
-    # #print('Provinces:', selected_provinces)
-    # time_frame = st.sidebar.selectbox(
-    #     'Select the amount of data:',
-    #     time_frames
-    # )
+    st.markdown(f'###### Report Date: {last_date}')
+    st.markdown('----')
+
+    # Setup sidebar
+    st.sidebar.markdown('## Options')
+    time_frame = st.sidebar.selectbox('Select analysis time period:', time_frames)
+
+    countries = st.sidebar.multiselect('Select countries:', 
+                                        allCountries,
+                                        ['Canada', 'Italy', 'Spain', 'Portugal', 'Thailand', 'Uruguay']
+                                      )
     return
 
 # #######################################################################################
@@ -173,14 +188,15 @@ def stSection1():
     global last_date
 
     prov = 'British Columbia'
-    file_name = f'{prov}.json'.replace(' ', '%20')
-    dfProv = pd.read_json(urllib.parse.urljoin(base_url, file_name))
-    last_date = dfProv['lastDate'].values[0]
-    dfProv = dfProv.sort_values(by=['date'], ascending=False)
+    file_name = f'{prov}.csv'.replace(' ', '%20')
+    dfProv = read_csv(urllib.parse.urljoin(base_url, file_name))
+    #dfLast = dfProv.tail(n=1)
+    #last_date = dfLast['Date'].values[0]
     dfProv = df_days(dfProv, last_date, time_frame)
-    st.markdown('----')
+    dfProv = dfProv.sort_values(by=['Date'], ascending=True)
+    #st.markdown('----')
     st.markdown(f'#### {prov}')
-    st.markdown(f'###### Report Date: {last_date}')
+    #st.markdown(f'###### Report Date: {last_date}')
 
     col1, col2 = st.beta_columns(2)
     with col1:
@@ -208,10 +224,10 @@ def stProvGraphs(dfProv):
 
     #plt.xticks(rotation=45)
     ax = plt.gca()
-    #ax.xaxis.set_major_locator(ticker.MultipleLocator(35))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(100))
 
-    plt.plot(dfProv['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-    plt.grid()
+    plt.plot(dfProv['Date'], dfProv['ConfirmedNewMean'], label='New Cases - Smoothed')
+    plt.grid(b=True, which='major')
     st.pyplot(fig1)
     plt.close()
 
@@ -229,10 +245,10 @@ def stProvGraphs(dfProv):
 
     #plt.xticks(rotation=45)
     ax = plt.gca()
-    #ax.xaxis.set_major_locator(ticker.MultipleLocator(35))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(100))
 
-    plt.plot(dfProv['date'], dfProv['deathsNewMean'], label='New Deaths - Smoothed')
-    plt.grid()
+    plt.plot(dfProv['Date'], dfProv['DeathsNewMean'], label='New Deaths - Smoothed')
+    plt.grid(b=True, which='major')
     st.pyplot(fig2)
     plt.close()
     #if prov == 'British Columbia':
@@ -253,15 +269,14 @@ def stProvTable(dfProv):
         #cases_data += '| :----- | ----------: | --------: | -----------: | ---------: |\n'
         row_count = 0
         for index, row in dfProv.iterrows():
-            date = row['date'] 
-            date = date.strftime("%Y-%m-%d")
-            confirmed = row['confirmed']
+            date = row['Date'] 
+            confirmed = row['Confirmed']
             confirmed = "{:,}".format(confirmed)
-            confirmedNew = row['confirmedNew']
+            confirmedNew = row['ConfirmedNew']
             confirmedNew = "{:,}".format(confirmedNew)
-            deaths = row['deaths']
+            deaths = row['Deaths']
             deaths = "{:,}".format(deaths)
-            deathsNew = row['deathsNew']
+            deathsNew = row['DeathsNew']
             deathsNew = "{:,}".format(deathsNew)
             cases_data += f'<tr><td nowrap>{date}</td><td style="text-align:right">{confirmed}</td><td style="text-align:right">{confirmedNew}</td><td style="text-align:right">{deaths}</td><td style="text-align:right">{deathsNew}</td></tr>' + '\n'
             row_count += 1
@@ -272,13 +287,14 @@ def stProvTable(dfProv):
         st.markdown(cases_data, unsafe_allow_html=True)
 
 #-----------------------------------------------------------------------------
-# Provincial Stats Table for 7 days
+# Provincial Stats Table
 #-----------------------------------------------------------------------------
 
 def stBCCases(dfProv):
     # "Reported_Date","HA","Sex","Age_Group","Classification_Reported"
     case_Url = 'http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv'
-    dfCase = pd.read_csv(case_Url) 
+    dfCase = read_csv(case_Url) 
+    dfCase = df_days(dfCase, last_date, time_frame)
     dfCase['Year_Month'] = dfCase['Reported_Date'].map(lambda reported_date: reported_date[0:7])
     dfCase = dfCase.sort_values(by=['Reported_Date', 'HA'])
 
@@ -298,80 +314,87 @@ def stSection2():
     global last_date
 
     st.markdown('----')
-    st.markdown(f'#### Compare Canadian Provinces')
-    st.markdown(f'###### Report Date: {last_date}')
-    dfal = pd.read_csv(urllib.parse.urljoin(base_url, 'Alberta.csv'))
+    st.markdown(f"#### Compare Canada's Largest Provinces")
+    #st.markdown(f'###### Report Date: {last_date}')
+    dfal = read_csv(urllib.parse.urljoin(base_url, 'Alberta.csv'))
+    dfal = df_days(dfal, last_date, time_frame)
     dfal['ConfirmedNewPer1M'] = dfal['ConfirmedNewMean'] / prov_pop['AL']
     dfal['DeathsNewPer1M']    = dfal['DeathsNewMean'] / prov_pop['AL']
-    dfbc = pd.read_csv(urllib.parse.urljoin(base_url, 'British%20Columbia.csv'))
+    dfbc = read_csv(urllib.parse.urljoin(base_url, 'British%20Columbia.csv'))
+    dfbc = df_days(dfbc, last_date, time_frame)
     dfbc['ConfirmedNewPer1M'] = dfbc['ConfirmedNewMean'] / prov_pop['AL']
     dfbc['DeathsNewPer1M']    = dfbc['DeathsNewMean'] / prov_pop['AL']
-    dfon = pd.read_csv(urllib.parse.urljoin(base_url, 'Ontario.csv'))
+    dfon = read_csv(urllib.parse.urljoin(base_url, 'Ontario.csv'))
+    dfon = df_days(dfon, last_date, time_frame)
     dfon['ConfirmedNewPer1M'] = dfon['ConfirmedNewMean'] / prov_pop['AL']
     dfon['DeathsNewPer1M']    = dfon['DeathsNewMean'] / prov_pop['AL']
-    dfqu = pd.read_csv(urllib.parse.urljoin(base_url, 'Quebec.csv'))
+    dfqu = read_csv(urllib.parse.urljoin(base_url, 'Quebec.csv'))
+    dfqu = df_days(dfqu, last_date, time_frame)
     dfqu['ConfirmedNewPer1M'] = dfqu['ConfirmedNewMean'] / prov_pop['AL']
     dfqu['DeathsNewPer1M']    = dfqu['DeathsNewMean'] / prov_pop['AL']
     #print(dfal.info())
 
     col1, col2 = st.beta_columns(2)
-    #with col1:
-
-    st.markdown(f'##### New Cases - {time_frame}')
-
-    fig1 = plt.figure(1, figsize=(15, 10))
 
     #-------------------------------------------------------------------------
     # Create Confirmed New Plot
     #-------------------------------------------------------------------------
 
-    plt.title('Confirmed New Cases per Million', fontsize='14')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+    with col1:
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+        st.markdown(f'##### New Cases - {time_frame}')
 
-    #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-    plt.plot(dfal['Date'], dfal['ConfirmedNewPer1M'], label='Alberta')
-    plt.plot(dfbc['Date'], dfbc['ConfirmedNewPer1M'], label='British Columbia')
-    plt.plot(dfon['Date'], dfon['ConfirmedNewPer1M'], label='Ontario')
-    plt.plot(dfqu['Date'], dfqu['ConfirmedNewPer1M'], label='Quebec')
+        fig1 = plt.figure(1, figsize=(15, 10))
 
-    # Add a legend
-    plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
-    st.pyplot(fig1)
-    plt.close()
+        plt.title('Confirmed New Cases per Million', fontsize='14')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
 
-    #with col2:
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-    st.markdown(f'##### New Deaths - {time_frame}')
+        #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
+        plt.plot(dfal['Date'], dfal['ConfirmedNewPer1M'], label='Alberta')
+        plt.plot(dfbc['Date'], dfbc['ConfirmedNewPer1M'], label='British Columbia')
+        plt.plot(dfon['Date'], dfon['ConfirmedNewPer1M'], label='Ontario')
+        plt.plot(dfqu['Date'], dfqu['ConfirmedNewPer1M'], label='Quebec')
 
-    fig1 = plt.figure(1, figsize=(15, 10))
+        # Add a legend
+        plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
 
     #-------------------------------------------------------------------------
     # Create Deaths New Plot
     #-------------------------------------------------------------------------
 
-    plt.title('New Deaths per Million', fontsize='14')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+    with col2:
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+        st.markdown(f'##### New Deaths - {time_frame}')
 
-    #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-    plt.plot(dfal['Date'], dfal['DeathsNewPer1M'], label='Alberta')
-    plt.plot(dfbc['Date'], dfbc['DeathsNewPer1M'], label='British Columbia')
-    plt.plot(dfon['Date'], dfon['DeathsNewPer1M'], label='Ontario')
-    plt.plot(dfqu['Date'], dfqu['DeathsNewPer1M'], label='Quebec')
+        fig1 = plt.figure(1, figsize=(15, 10))
 
-    # Add a legend
-    plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
-    st.pyplot(fig1)
-    plt.close()
+        plt.title('New Deaths per Million', fontsize='14')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
+
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+
+        #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
+        plt.plot(dfal['Date'], dfal['DeathsNewPer1M'], label='Alberta')
+        plt.plot(dfbc['Date'], dfbc['DeathsNewPer1M'], label='British Columbia')
+        plt.plot(dfon['Date'], dfon['DeathsNewPer1M'], label='Ontario')
+        plt.plot(dfqu['Date'], dfqu['DeathsNewPer1M'], label='Quebec')
+
+        # Add a legend
+        plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
 
 # #######################################################################################
 # Section 3
@@ -383,12 +406,53 @@ def stSection3():
 
     st.markdown('----')
     st.markdown(f'#### Countries')
-    st.markdown(f'###### Report Date: {last_date}')
 
-    allGroups = createGroups()
+    fig1 = plt.figure(1, figsize=(15, 10))
 
-    for group in allGroups:
-        plotGroup(group)
+    plt.title('New Confirmed Cases', fontsize='14')
+    plt.xlabel="Date"
+    plt.ylabel="Number"
+
+    #plt.xticks(rotation=45)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+
+    for cty in countries:
+        dfCountry = dfIndex[dfIndex['Country'] == cty]
+        file_name = dfCountry['File'].values[0]
+        file_url = urllib.parse.urljoin(base_url, file_name)
+        df = pd.read_csv(file_url)
+        plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
+
+    # Add a legend
+    plt.legend(countries)
+    plt.grid(b=True, which='major')
+    st.pyplot(fig1)
+    plt.close()
+
+    fig1 = plt.figure(1, figsize=(15, 10))
+
+    plt.title('New Deaths', fontsize='14')
+    plt.xlabel="Date"
+    plt.ylabel="Number"
+
+    #plt.xticks(rotation=45)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+
+    for cty in countries:
+        dfCountry = dfIndex[dfIndex['Country'] == cty]
+        file_name = dfCountry['File'].values[0]
+        file_url = urllib.parse.urljoin(base_url, file_name)
+        df = pd.read_csv(file_url)
+        plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
+
+    # Add a legend
+    plt.legend(countries)
+    plt.grid(b=True, which='major')
+    st.pyplot(fig1)
+    plt.close()
+
 
 
 #-------------------------------------------------------------------------
@@ -508,6 +572,49 @@ def plotGroup(countryGroup):
 
         ax.set_ylim(bottom=0, auto=True)
         plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
+        plt.grid(b=True, which='major')
+        #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
+        
+    st.pyplot(fig1)
+    plt.close(fig1)
+
+#-------------------------------------------------------------------------
+# Plot a group of countries
+#-------------------------------------------------------------------------
+
+def plotGroupx(countryGroup):
+    global last_date
+
+    plotFileName = countryGroup.groupName.replace(' ', '-')
+    #plotPath = outputPngDir + '/' + plotFileName + '.png'
+
+    #print('Plotting', countryGroup.groupName, 'to', plotPath)
+    
+    #plt.clf()
+    fig1 = plt.figure(1, figsize=(15, 5))
+    reportTitle = countryGroup.groupName + ' Confirmed New Cases - Smoothed'
+    fig1.suptitle(reportTitle, fontsize=14)
+
+    subPlotRows = 1
+    subPlotCols = len(countryGroup.countryList)
+    subPlotIndex = 0
+    
+    for country in countryGroup.countryList:
+        subPlotIndex += 1
+
+        df = getDfForCountry(country.name)
+
+        ax = fig1.add_subplot(subPlotRows, subPlotCols, subPlotIndex)
+
+        plt.title(country.name, fontsize='small', va='bottom')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
+
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(120))
+
+        ax.set_ylim(bottom=0, auto=True)
+        plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
+        plt.grid(b=True, which='major')
         #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
         
     st.pyplot(fig1)
@@ -521,7 +628,8 @@ def getDfForCountry(countryName):
     global last_date
 
     country = countryName.replace(' ', '%20')
-    df = pd.read_csv(urllib.parse.urljoin(base_url, f'{country}.csv'))
+    df = read_csv(urllib.parse.urljoin(base_url, f'{country}.csv'))
+    df = df_days(df, last_date, time_frame)
 
     return df
 
