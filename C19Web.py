@@ -104,6 +104,8 @@ dfLast = read_csv(urllib.parse.urljoin(base_url, 'Canada.csv'))
 dfLast = dfLast.tail(n=1)
 last_date = dfLast['Date'].values[0]
 
+world_pop = read_csv(urllib.parse.urljoin(base_url, 'WorldPop.csv'))
+
 # Provincial Population
 prov_pop = {
     'BC' : 5.071,
