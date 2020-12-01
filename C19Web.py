@@ -192,8 +192,18 @@ def stSection1():
     global last_date
 
     prov = 'British Columbia'
+    
     file_name = f'{prov}.csv'.replace(' ', '%20')
-    dfProv = read_csv(urllib.parse.urljoin(base_url, file_name))
+    dfProv = pd.read_csv(urllib.parse.urljoin(base_url, file_name))
+    
+    dfTests = read_csv(bc_tests_url)
+    dfTable = dfTests.copy() 
+    dfTable['New_Positives'] = dfTable['New_Tests'] * (dfTable['Positivity'] / 100)
+
+    dfTable = dfTable.groupby('Date').agg({'New_Tests': 'sum', 'New_Positives': 'sum', 'Positivity': 'mean', 'Turn_Around': 'mean'})
+    dfTable = dfTable.sort_values('Date', ascending=False)
+    dfTable = pd.merge(dfProv, dfTable, on=['Date'])
+    print(dfTable.tail(n=10))
     #dfLast = dfProv.tail(n=1)
     #last_date = dfLast['Date'].values[0]
     dfProv = df_days(dfProv, last_date, time_frame)
@@ -203,10 +213,10 @@ def stSection1():
     #st.markdown(f'###### Report Date: {last_date}')
 
     col1, col2 = st.beta_columns(2)
-    with col1:
-        stProvTable(dfProv)
-    with col2:
-        stProvGraphs(dfProv)
+    #with col1:
+    stProvTable(dfTable)
+    #with col2:
+    stProvGraphs(dfProv)
 
 #-----------------------------------------------------------------------------
 # Provincial Stats Graph for specified time span
@@ -217,59 +227,63 @@ def stProvGraphs(dfProv):
     #-------------------------------------------------------------------------
     # Create Confirmed New Plot
     #-------------------------------------------------------------------------
+    col1, col2 = st.beta_columns(2)
+    with col1:
 
-    st.markdown(f'##### New Cases - {time_frame}')
+        st.markdown(f'##### New Cases - {time_frame}')
 
-    fig1 = plt.figure(1, figsize=(15, 7))
+        fig1 = plt.figure(1, figsize=(15, 7))
 
-    plt.title('New Cases - Smoothed', fontsize='large')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+        plt.title('New Cases - Smoothed', fontsize='large')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(100))
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(100))
 
-    plt.plot(dfProv['Date'], dfProv['ConfirmedNewMean'], label='New Cases - Smoothed')
-    plt.grid(b=True, which='major')
-    st.pyplot(fig1)
-    plt.close()
+        plt.plot(dfProv['Date'], dfProv['ConfirmedNewMean'], label='New Cases - Smoothed')
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
 
     #-------------------------------------------------------------------------
     # Create Deaths New Plot
     #-------------------------------------------------------------------------
 
-    st.markdown(f'##### New Deaths - {time_frame}')
-    
-    fig2 = plt.figure(2, figsize=(15, 7))
+    with col2:
+        st.markdown(f'##### New Deaths - {time_frame}')
+        
+        fig2 = plt.figure(2, figsize=(15, 7))
 
-    plt.title('New Deaths - Smoothed')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+        plt.title('New Deaths - Smoothed')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(100))
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(100))
 
-    plt.plot(dfProv['Date'], dfProv['DeathsNewMean'], label='New Deaths - Smoothed')
-    plt.grid(b=True, which='major')
-    st.pyplot(fig2)
-    plt.close()
-    #if prov == 'British Columbia':
-    #stBCCases(dfProv)
+        plt.plot(dfProv['Date'], dfProv['DeathsNewMean'], label='New Deaths - Smoothed')
+        plt.grid(b=True, which='major')
+        st.pyplot(fig2)
+        plt.close()
+        #if prov == 'British Columbia':
+        #stBCCases(dfProv)
 
 #-----------------------------------------------------------------------------
-# Provincial Stats Table for 8 days
+# Provincial Stats Table
 #-----------------------------------------------------------------------------
 
 def stProvTable(dfProv):
+    
         st.markdown(f'##### 10 Days')
 
         # Table of details for last week 
         cases_data = '<div style="font-size: small">\n'
         cases_data += '<table border=1>\n'
-        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th></tr>\n'
-        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th></tr>\n'
+        cases_data += '<tr><th> </th><th colspan=2 style="text-align:center">Cases</th><th colspan=2 style="text-align:center">Deaths</th><th colspan=4 style="text-align:center">Testing</th></tr>\n'
+        cases_data += '<tr><th>Date</th><th>Total</th><th>New</th><th>Total</th><th>New</th><th>New</th><th>Positives</th><th>% Pos.</th><th>Hours</th></tr>\n'
         #cases_data += '| :----- | ----------: | --------: | -----------: | ---------: |\n'
         row_count = 0
         dfSorted = dfProv.sort_values(['Date'], ascending=False)
@@ -283,7 +297,25 @@ def stProvTable(dfProv):
             deaths = "{:,}".format(deaths)
             deathsNew = row['DeathsNew']
             deathsNew = "{:,}".format(deathsNew)
-            cases_data += f'<tr><td nowrap>{date}</td><td style="text-align:right">{confirmed}</td><td style="text-align:right">{confirmedNew}</td><td style="text-align:right">{deaths}</td><td style="text-align:right">{deathsNew}</td></tr>' + '\n'
+            #New_Tests  New_Positives  Positivity  Turn_Around
+            newTests = row['New_Tests']
+            newTests = "{:,.0f}".format(newTests)
+            newPositives = row['New_Positives']
+            newPositives = "{:,.0f}".format(newPositives)
+            positivity = row['Positivity']
+            positivity = "{:.1f}".format(positivity)
+            turnAround = row['Turn_Around']
+            turnAround = "{:.1f}".format(turnAround)
+            cases_data += f'<tr>'
+            cases_data += f'<td nowrap>{date}</td><td style="text-align:right">{confirmed}</td>'
+            cases_data += f'<td style="text-align:right">{confirmedNew}</td>'
+            cases_data += f'<td style="text-align:right">{deaths}</td>'
+            cases_data += f'<td style="text-align:right">{deathsNew}</td>'
+            cases_data += f'<td style="text-align:right">{newTests}</td>'
+            cases_data += f'<td style="text-align:right">{newPositives}</td>'
+            cases_data += f'<td style="text-align:right">{positivity}%</td>'
+            cases_data += f'<td style="text-align:right">{turnAround} hours</td>'
+            cases_data += f'</tr>' + '\n'
             row_count += 1
             if row_count >= 10:
                 cases_data += '</table>\n'
@@ -345,61 +377,61 @@ def stSection2():
     # Create Confirmed New Plot
     #-------------------------------------------------------------------------
 
-    #with col1:
+    with col1:
 
-    st.markdown(f'##### New Cases - {time_frame}')
+        st.markdown(f'##### New Cases - {time_frame}')
 
-    fig1 = plt.figure(1, figsize=(15, 10))
+        fig1 = plt.figure(1, figsize=(15, 10))
 
-    plt.title('Confirmed New Cases per Million', fontsize='14')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+        plt.title('Confirmed New Cases per Million', fontsize='14')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-    #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-    plt.plot(dfal['Date'], dfal['ConfirmedNewPer1M'], label='Alberta')
-    plt.plot(dfbc['Date'], dfbc['ConfirmedNewPer1M'], label='British Columbia')
-    plt.plot(dfon['Date'], dfon['ConfirmedNewPer1M'], label='Ontario')
-    plt.plot(dfqu['Date'], dfqu['ConfirmedNewPer1M'], label='Quebec')
+        #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
+        plt.plot(dfal['Date'], dfal['ConfirmedNewPer1M'], label='Alberta')
+        plt.plot(dfbc['Date'], dfbc['ConfirmedNewPer1M'], label='British Columbia')
+        plt.plot(dfon['Date'], dfon['ConfirmedNewPer1M'], label='Ontario')
+        plt.plot(dfqu['Date'], dfqu['ConfirmedNewPer1M'], label='Quebec')
 
-    # Add a legend
-    plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
-    plt.grid(b=True, which='major')
-    st.pyplot(fig1)
-    plt.close()
+        # Add a legend
+        plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
 
     #-------------------------------------------------------------------------
     # Create Deaths New Plot
     #-------------------------------------------------------------------------
 
-    #with col2:
+    with col2:
 
-    st.markdown(f'##### New Deaths - {time_frame}')
+        st.markdown(f'##### New Deaths - {time_frame}')
 
-    fig1 = plt.figure(1, figsize=(15, 10))
+        fig1 = plt.figure(1, figsize=(15, 10))
 
-    plt.title('New Deaths per Million', fontsize='14')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+        plt.title('New Deaths per Million', fontsize='14')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-    #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
-    plt.plot(dfal['Date'], dfal['DeathsNewPer1M'], label='Alberta')
-    plt.plot(dfbc['Date'], dfbc['DeathsNewPer1M'], label='British Columbia')
-    plt.plot(dfon['Date'], dfon['DeathsNewPer1M'], label='Ontario')
-    plt.plot(dfqu['Date'], dfqu['DeathsNewPer1M'], label='Quebec')
+        #plt.plot(dfPr['date'], dfProv['confirmedNewMean'], label='New Cases - Smoothed')
+        plt.plot(dfal['Date'], dfal['DeathsNewPer1M'], label='Alberta')
+        plt.plot(dfbc['Date'], dfbc['DeathsNewPer1M'], label='British Columbia')
+        plt.plot(dfon['Date'], dfon['DeathsNewPer1M'], label='Ontario')
+        plt.plot(dfqu['Date'], dfqu['DeathsNewPer1M'], label='Quebec')
 
-    # Add a legend
-    plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
-    plt.grid(b=True, which='major')
-    st.pyplot(fig1)
-    plt.close()
+        # Add a legend
+        plt.legend(['Alberta', 'British Columbia', 'Ontario', 'Quebec'])
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
 
 # #######################################################################################
 # Section 3
