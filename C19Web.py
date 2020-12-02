@@ -209,7 +209,7 @@ def stSection1():
     dfTable = dfTable.groupby('Date').agg({'New_Tests': 'sum', 'New_Positives': 'sum', 'Positivity': 'mean', 'Turn_Around': 'mean'})
     dfTable = dfTable.sort_values('Date', ascending=False)
     dfTable = pd.merge(dfProv, dfTable, on=['Date'], how='outer')
-    dfTable = dfTable.replace(np.nan,'-')
+    dfTable = dfTable.replace(np.nan,0)
     print(dfTable.tail(n=10))
     #dfLast = dfProv.tail(n=1)
     #last_date = dfLast['Date'].values[0]
