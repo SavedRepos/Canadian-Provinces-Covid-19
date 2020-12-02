@@ -209,7 +209,7 @@ def stSection1():
     dfTable = dfTable.groupby('Date').agg({'New_Tests': 'sum', 'New_Positives': 'sum', 'Positivity': 'mean', 'Turn_Around': 'mean'})
     dfTable = dfTable.sort_values('Date', ascending=False)
     dfTable = pd.merge(dfProv, dfTable, on=['Date'], how='outer')
-    dfTable = dfTable.replace(np.nan,0)
+    dfTable = dfTable.replace(np.nan,'-')
     print(dfTable.tail(n=10))
     #dfLast = dfProv.tail(n=1)
     #last_date = dfLast['Date'].values[0]
@@ -322,7 +322,7 @@ def stProvTable(dfProv):
             cases_data += f'<td style="text-align:right">{newTests}</td>'
             cases_data += f'<td style="text-align:right">{newPositives}</td>'
             cases_data += f'<td style="text-align:right">{positivity}%</td>'
-            cases_data += f'<td style="text-align:right">{turnAround} hours</td>'
+            cases_data += f'<td style="text-align:right">{turnAround}</td>'
             cases_data += f'</tr>' + '\n'
             row_count += 1
             if row_count >= 10:
