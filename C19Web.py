@@ -70,7 +70,7 @@ class Country():
 # Read data and cache
 # #######################################################################################
 
-#@st.cache
+#st.cache
 def read_csv(url):
     fixed_url = url.replace(' ', '%20')
     return pd.read_csv(fixed_url)
