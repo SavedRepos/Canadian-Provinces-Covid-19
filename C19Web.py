@@ -162,7 +162,7 @@ def stSetup():
 
     st.header('Covid-19 Tracker')
     st.markdown(f'###### Report Date: {last_date}')
-    st.markdown('----')
+    #st.markdown('----')
 
     # Setup sidebar
     st.sidebar.markdown('## Options')
@@ -174,6 +174,11 @@ def stSetup():
                                         allCountries,
                                         ['Canada', 'Italy', 'Spain', 'Portugal', 'Thailand', 'Uruguay']
                                       )
+
+    st.sidebar.markdown('----')
+    st.sidebar.markdown('### About')
+    st.sidebar.markdown('The majority of the data used in this application is sourced from the [Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE)](https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases).')    
+    st.sidebar.markdown('The testing data for British Columbia is from the [BC Centre for Disease Control](http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Lab_Information.csv)')
     return
 
 # #######################################################################################
