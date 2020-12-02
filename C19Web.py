@@ -163,7 +163,7 @@ def stSetup():
     st.header('Covid-19 Tracker')
     st.markdown(f'###### Report Date: {last_date}')
     st.markdown(f'###### Reporting time frame: {time_frame}')
-    st.markdown('----')
+    st.markdown('## ')
 
     # Setup sidebar
     st.sidebar.markdown('## Options')
