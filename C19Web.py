@@ -237,7 +237,7 @@ def stProvGraphs(dfProv):
 
         st.markdown(f'##### New Cases - {time_frame}')
 
-        fig1 = plt.figure(1, figsize=(15, 7))
+        fig1 = plt.figure(1, figsize=(8, 5))
 
         plt.title('New Cases - Smoothed', fontsize='large')
         plt.xlabel="Date"
@@ -259,7 +259,7 @@ def stProvGraphs(dfProv):
     with col2:
         st.markdown(f'##### New Deaths - {time_frame}')
         
-        fig2 = plt.figure(2, figsize=(15, 7))
+        fig2 = plt.figure(2, figsize=(8, 5))
 
         plt.title('New Deaths - Smoothed')
         plt.xlabel="Date"
@@ -386,9 +386,9 @@ def stSection2():
 
         st.markdown(f'##### New Cases - {time_frame}')
 
-        fig1 = plt.figure(1, figsize=(15, 10))
+        fig1 = plt.figure(1, figsize=(8, 5))
 
-        plt.title('Confirmed New Cases per Million', fontsize='14')
+        plt.title('Confirmed New Cases per Million', fontsize='large')
         plt.xlabel="Date"
         plt.ylabel="Number"
 
@@ -416,9 +416,9 @@ def stSection2():
 
         st.markdown(f'##### New Deaths - {time_frame}')
 
-        fig1 = plt.figure(1, figsize=(15, 10))
+        fig1 = plt.figure(1, figsize=(8, 5))
 
-        plt.title('New Deaths per Million', fontsize='14')
+        plt.title('New Deaths per Million', fontsize='large')
         plt.xlabel="Date"
         plt.ylabel="Number"
 
@@ -449,218 +449,56 @@ def stSection3():
     st.markdown('----')
     st.markdown(f'#### Countries')
 
-    fig1 = plt.figure(1, figsize=(15, 10))
+    col1, col2 = st.beta_columns(2)
 
-    plt.title('New Confirmed Cases', fontsize='14')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
+    with col1:
 
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+        fig1 = plt.figure(1, figsize=(8, 5))
 
-    for cty in countries:
-        dfCountry = dfIndex[dfIndex['Country'] == cty]
-        file_name = dfCountry['File'].values[0]
-        file_url = urllib.parse.urljoin(base_url, file_name)
-        df = read_csv(file_url)
-        plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
-
-    # Add a legend
-    plt.legend(countries)
-    plt.grid(b=True, which='major')
-    st.pyplot(fig1)
-    plt.close()
-
-    fig1 = plt.figure(1, figsize=(15, 10))
-
-    plt.title('New Deaths', fontsize='14')
-    plt.xlabel="Date"
-    plt.ylabel="Number"
-
-    #plt.xticks(rotation=45)
-    ax = plt.gca()
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
-
-    for cty in countries:
-        dfCountry = dfIndex[dfIndex['Country'] == cty]
-        file_name = dfCountry['File'].values[0]
-        file_url = urllib.parse.urljoin(base_url, file_name)
-        df = read_csv(file_url)
-        plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
-
-    # Add a legend
-    plt.legend(countries)
-    plt.grid(b=True, which='major')
-    st.pyplot(fig1)
-    plt.close()
-
-
-
-#-------------------------------------------------------------------------
-# Create groups of countries for plotting
-#-------------------------------------------------------------------------
-
-def createGroups():
-
-    # North America
-    canada = Country('Canada')
-    mexico = Country('Mexico')
-    usa = Country('US')
-    am = [canada, mexico, usa]
-
-    northAmerica = Countries('North America', am)
-
-    # Western Europe
-    france = Country('France')
-    italy = Country('Italy')
-    portugal = Country('Portugal')
-    spain = Country('Spain')
-    we = [france, italy, portugal, spain]
-
-    westernEurope = Countries('Western Europe', we)
-
-    # Eastern Europe
-    bosnia = Country('Bosnia and Herzegovina')
-    bulgaria = Country('Bulgaria')
-    croatia = Country('Croatia')
-    serbia = Country('Serbia')
-    ee = [bosnia, bulgaria, croatia, serbia]
-
-    easternEurope = Countries('Eastern Europe', ee)
-
-    # Eastern Med
-    albania = Country('Albania')
-    cyprus = Country('Cyprus')
-    greece = Country('Greece')
-    turkey = Country('Turkey')
-    em = [albania, cyprus, greece, turkey]
-
-    easternMed = Countries('Eastern Med', em)
-
-
-    # North Africa
-    algeria = Country('Algeria')
-    morocco = Country('Morocco')
-    oman = Country('Oman')
-    tunisia = Country('Tunisia')
-    na = [algeria, morocco, oman, tunisia]
-
-    northAfrica = Countries('North Africa', na)
-
-    # South America
-    argentina = Country('Argentina')
-    bolivia = Country('Bolivia')
-    chile = Country('Chile')
-    uruguay = Country('Uruguay')
-    sa = [argentina, bolivia, chile, uruguay]
-
-    southAmerica = Countries('South America', sa)
-
-    # Oceana
-    australia = Country('Australia')
-    newZealand = Country('New Zealand')
-    oc = [australia, newZealand]
-
-    oceana = Countries('Oceana', oc)
-
-    # Asia
-    thailand = Country('Thailand')
-    vietnam = Country('Vietnam')
-    polynesia = Country('French Polynesia')
-    indonesia = Country('Indonesia')
-    se = [thailand, vietnam, polynesia, indonesia]
-
-    asia = Countries('Asia', se)
-
-    # allGroups = [northAmerica, westernEurope, easternEurope, easternMed, northAfrica, southAmerica, oceana, asia]
-    allGroups = [northAmerica, westernEurope, northAfrica, southAmerica, asia]
-
-    return allGroups
-
-#-------------------------------------------------------------------------
-# Plot a group of countries
-#-------------------------------------------------------------------------
-
-def plotGroup(countryGroup):
-    global last_date
-
-    plotFileName = countryGroup.groupName.replace(' ', '-')
-    #plotPath = outputPngDir + '/' + plotFileName + '.png'
-
-    #print('Plotting', countryGroup.groupName, 'to', plotPath)
-    
-    #plt.clf()
-    fig1 = plt.figure(1, figsize=(15, 5))
-    reportTitle = countryGroup.groupName + ' Confirmed New Cases - Smoothed'
-    fig1.suptitle(reportTitle, fontsize=14)
-
-    subPlotRows = 1
-    subPlotCols = len(countryGroup.countryList)
-    subPlotIndex = 0
-    
-    for country in countryGroup.countryList:
-        subPlotIndex += 1
-
-        df = getDfForCountry(country.name)
-
-        ax = fig1.add_subplot(subPlotRows, subPlotCols, subPlotIndex)
-
-        plt.title(country.name, fontsize='small', va='bottom')
+        plt.title('New Confirmed Cases', fontsize='large')
         plt.xlabel="Date"
         plt.ylabel="Number"
 
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(120))
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-        ax.set_ylim(bottom=0, auto=True)
-        plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
+        for cty in countries:
+            dfCountry = dfIndex[dfIndex['Country'] == cty]
+            file_name = dfCountry['File'].values[0]
+            file_url = urllib.parse.urljoin(base_url, file_name)
+            df = read_csv(file_url)
+            plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
+
+        # Add a legend
+        plt.legend(countries)
         plt.grid(b=True, which='major')
-        #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
-        
-    st.pyplot(fig1)
-    plt.close(fig1)
+        st.pyplot(fig1)
+        plt.close()
 
-#-------------------------------------------------------------------------
-# Plot a group of countries
-#-------------------------------------------------------------------------
+    with col2:
+        fig1 = plt.figure(1, figsize=(8, 5))
 
-def plotGroupx(countryGroup):
-    global last_date
-
-    plotFileName = countryGroup.groupName.replace(' ', '-')
-    #plotPath = outputPngDir + '/' + plotFileName + '.png'
-
-    #print('Plotting', countryGroup.groupName, 'to', plotPath)
-    
-    #plt.clf()
-    fig1 = plt.figure(1, figsize=(15, 5))
-    reportTitle = countryGroup.groupName + ' Confirmed New Cases - Smoothed'
-    fig1.suptitle(reportTitle, fontsize=14)
-
-    subPlotRows = 1
-    subPlotCols = len(countryGroup.countryList)
-    subPlotIndex = 0
-    
-    for country in countryGroup.countryList:
-        subPlotIndex += 1
-
-        df = getDfForCountry(country.name)
-
-        ax = fig1.add_subplot(subPlotRows, subPlotCols, subPlotIndex)
-
-        plt.title(country.name, fontsize='small', va='bottom')
+        plt.title('New Deaths', fontsize='large')
         plt.xlabel="Date"
         plt.ylabel="Number"
 
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(120))
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
 
-        ax.set_ylim(bottom=0, auto=True)
-        plt.bar(df['Date'], df['ConfirmedNewMean'], label='New Confirmed')
+        for cty in countries:
+            dfCountry = dfIndex[dfIndex['Country'] == cty]
+            file_name = dfCountry['File'].values[0]
+            file_url = urllib.parse.urljoin(base_url, file_name)
+            df = read_csv(file_url)
+            plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
+
+        # Add a legend
+        plt.legend(countries)
         plt.grid(b=True, which='major')
-        #plt.plot(country.df['date'], country.df['confirmedTenDayAverage'], label='10 Day Average', color='red')
-        
-    st.pyplot(fig1)
-    plt.close(fig1)
+        st.pyplot(fig1)
+        plt.close()
 
 #-------------------------------------------------------------------------
 # Get dataframe for a country
