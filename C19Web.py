@@ -162,7 +162,8 @@ def stSetup():
 
     st.header('Covid-19 Tracker')
     st.markdown(f'###### Report Date: {last_date}')
-    #st.markdown('----')
+    st.markdown(f'###### Reporting time frame: {time_frame}')
+    st.markdown('----')
 
     # Setup sidebar
     st.sidebar.markdown('## Options')
@@ -220,6 +221,7 @@ def stSection1():
     col1, col2 = st.beta_columns(2)
     #with col1:
     stProvTable(dfTable)
+    st.markdown('## ')
     #with col2:
     stProvGraphs(dfProv)
 
@@ -235,7 +237,7 @@ def stProvGraphs(dfProv):
     col1, col2 = st.beta_columns(2)
     with col1:
 
-        st.markdown(f'##### New Cases - {time_frame}')
+        #st.markdown(f'##### New Cases')
 
         fig1 = plt.figure(1, figsize=(8, 5))
 
@@ -257,7 +259,7 @@ def stProvGraphs(dfProv):
     #-------------------------------------------------------------------------
 
     with col2:
-        st.markdown(f'##### New Deaths - {time_frame}')
+        #st.markdown(f'##### New Deaths')
         
         fig2 = plt.figure(2, figsize=(8, 5))
 
@@ -282,7 +284,7 @@ def stProvGraphs(dfProv):
 
 def stProvTable(dfProv):
     
-        st.markdown(f'##### 10 Days')
+        #st.markdown(f'##### 10 Days')
 
         # Table of details for last week 
         cases_data = '<div style="font-size: small">\n'
@@ -384,7 +386,7 @@ def stSection2():
 
     with col1:
 
-        st.markdown(f'##### New Cases - {time_frame}')
+        #st.markdown(f'##### New Cases')
 
         fig1 = plt.figure(1, figsize=(8, 5))
 
@@ -414,7 +416,7 @@ def stSection2():
 
     with col2:
 
-        st.markdown(f'##### New Deaths - {time_frame}')
+        #st.markdown(f'##### New Deaths')
 
         fig1 = plt.figure(1, figsize=(8, 5))
 
