@@ -100,9 +100,13 @@ time_frames = ('All', '1 Week', '2 Weeks', '3 Weeks', '1 Month', '3 Months', '6 
 time_frame = 'All'
 
 last_date = ''
-dfLast = read_csv(urllib.parse.urljoin(base_url, 'Canada.csv'))
-dfLast = dfLast.tail(n=1)
+dfCanada = read_csv(urllib.parse.urljoin(base_url, 'Canada.csv'))
+
+dfLast = dfCanada.tail(n=1)
 last_date = dfLast['Date'].values[0]
+
+dfFirst = dfCanada.head(n=1)
+first_date = dfFirst['Date'].values[0]
 
 world_pop = read_csv(urllib.parse.urljoin(base_url, 'WorldPop.csv'))
 
@@ -125,6 +129,7 @@ prov_pop = {
 # #######################################################################################
 
 def df_days(dfProv, last_date, time_frame):
+    global first_date
 
     first_date = parser.parse('2020-03-01')
     in_date = parser.parse(last_date)
@@ -147,6 +152,7 @@ def df_days(dfProv, last_date, time_frame):
         date_after = first_date
 
     out_date = date_after.strftime("%Y-%m-%d")
+    first_date = out_date
     dfOut = dfProv[dfProv['Date'] >= out_date]
     return dfOut
 
@@ -157,18 +163,20 @@ def df_days(dfProv, last_date, time_frame):
 def stSetup():
     global selected_provinces
     global time_frame
+    global first_date
     global last_date
     global countries
 
     st.header('Covid-19 Tracker')
-    st.markdown(f'###### Report Date: {last_date}')
-    st.markdown(f'###### Reporting time frame: {time_frame}')
-    st.markdown('## ')
 
     # Setup sidebar
     st.sidebar.markdown('## Options')
     st.sidebar.markdown('### Select Time Frame')
     time_frame = st.sidebar.selectbox('Select analysis time period:', time_frames)
+
+    # if st.sidebar.button('add a new group'):
+    #     st.sidebar.write('Write a group')
+
 
     st.sidebar.markdown('### Select Countries')
     countries = st.sidebar.multiselect('Select countries:', 
@@ -180,6 +188,9 @@ def stSetup():
     st.sidebar.markdown('### About')
     st.sidebar.markdown('The majority of the data used in this application is sourced from the [Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE)](https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases).')    
     st.sidebar.markdown('The testing data for British Columbia is from the [BC Centre for Disease Control](http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Lab_Information.csv)')
+    
+    
+    
     return
 
 # #######################################################################################
@@ -200,7 +211,7 @@ def stSection1():
     prov = 'British Columbia'
     
     file_name = f'{prov}.csv'.replace(' ', '%20')
-    dfProv = pd.read_csv(urllib.parse.urljoin(base_url, file_name))
+    dfProv = read_csv(urllib.parse.urljoin(base_url, file_name))
     
     dfTests = read_csv(bc_tests_url)
     dfTable = dfTests.copy() 
@@ -215,6 +226,11 @@ def stSection1():
     #last_date = dfLast['Date'].values[0]
     dfProv = df_days(dfProv, last_date, time_frame)
     dfProv = dfProv.sort_values(by=['Date'], ascending=True)
+
+    st.markdown(f'###### Report Date: {last_date}')
+    st.markdown(f'###### Reporting time frame: {time_frame} ({first_date} - {last_date})')
+    st.markdown('## ')
+
     #st.markdown('----')
     st.markdown(f'#### {prov}')
     #st.markdown(f'###### Report Date: {last_date}')
