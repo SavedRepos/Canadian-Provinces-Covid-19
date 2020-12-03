@@ -11,11 +11,9 @@
 # in the main program because of Streamlit requirements.
 #
 
-import csv
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dateutil import parser
-import json
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
@@ -70,7 +68,7 @@ class Country():
 # Read data and cache
 # #######################################################################################
 
-@st.cache
+#st.cache
 def read_csv(url):
     fixed_url = url.replace(' ', '%20')
     return pd.read_csv(fixed_url)
