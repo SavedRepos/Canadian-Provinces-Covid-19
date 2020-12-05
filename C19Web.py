@@ -169,7 +169,7 @@ def stSetup():
     st.sidebar.markdown('### Select Countries')
     countries = st.sidebar.multiselect('Select countries:', 
                                         allCountries,
-                                        ['Canada', 'US', 'Spain', 'Portugal', 'Thailand']
+                                        ['Canada', 'Italy', 'Spain', 'Portugal', 'Thailand']
                                       )
 
     st.sidebar.markdown('----')
