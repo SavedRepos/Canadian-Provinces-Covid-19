@@ -154,6 +154,7 @@ def stSetup():
     global first_date
     global last_date
     global countries
+    global countries2
 
     st.header('Covid-19 Tracker')
 
@@ -165,11 +166,16 @@ def stSetup():
     # if st.sidebar.button('add a new group'):
     #     st.sidebar.write('Write a group')
 
-
-    st.sidebar.markdown('### Select Countries')
+    st.sidebar.markdown('### Select Countries (1)')
     countries = st.sidebar.multiselect('Select countries:', 
                                         allCountries,
                                         ['Canada', 'Italy', 'Spain', 'Portugal', 'Thailand']
+                                      )
+
+    st.sidebar.markdown('### Select Countries (2)')
+    countries2 = st.sidebar.multiselect('Select countries:', 
+                                        allCountries,
+                                        ['Morocco','Tunisia','Oman']
                                       )
 
     st.sidebar.markdown('----')
@@ -513,7 +519,7 @@ def stSection4():
     global last_date
 
     st.markdown('----')
-    st.markdown(f'#### Countries')
+    st.markdown(f'#### Countries (1)')
 
     col1, col2 = st.beta_columns(2)
 
@@ -566,6 +572,68 @@ def stSection4():
         st.pyplot(fig1)
         plt.close()
 
+# #######################################################################################
+# Section 5
+#     Other Countries
+# #######################################################################################
+
+def stSection5():
+    global last_date
+
+    st.markdown('----')
+    st.markdown(f'#### Countries (2)')
+
+    col1, col2 = st.beta_columns(2)
+
+    with col1:
+
+        fig1 = plt.figure(1, figsize=(8, 5))
+
+        plt.title('New Confirmed Cases', fontsize='large')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
+
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+
+        for cty in countries2:
+            dfCountry = dfIndex[dfIndex['Country'] == cty]
+            file_name = dfCountry['File'].values[0]
+            file_url = urllib.parse.urljoin(base_url, file_name)
+            df = pd.read_csv(file_url)
+            plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
+
+        # Add a legend
+        plt.legend(countries2)
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
+
+    with col2:
+        fig1 = plt.figure(1, figsize=(8, 5))
+
+        plt.title('New Deaths', fontsize='large')
+        plt.xlabel="Date"
+        plt.ylabel="Number"
+
+        #plt.xticks(rotation=45)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(75))
+
+        for cty in countries2:
+            dfCountry = dfIndex[dfIndex['Country'] == cty]
+            file_name = dfCountry['File'].values[0]
+            file_url = urllib.parse.urljoin(base_url, file_name)
+            df = pd.read_csv(file_url)
+            plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
+
+        # Add a legend
+        plt.legend(countries2)
+        plt.grid(b=True, which='major')
+        st.pyplot(fig1)
+        plt.close()
+
 #-------------------------------------------------------------------------
 # Get dataframe for a country
 #-------------------------------------------------------------------------
@@ -589,6 +657,7 @@ def main():
     stSection2()
     stSection3()
     stSection4()
+    stSection5()
 
 if __name__ == '__main__':
     main()
