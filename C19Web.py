@@ -538,7 +538,7 @@ def stSection4():
         for cty in countries:
             dfCountry = dfIndex[dfIndex['Country'] == cty]
             file_name = dfCountry['File'].values[0]
-            file_url = urllib.parse.urljoin(base_url, file_name)
+            file_url = urllib.parse.urljoin(base_url, file_name.replace(' ', '%20'))
             df = pd.read_csv(file_url)
             plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
 
@@ -562,7 +562,7 @@ def stSection4():
         for cty in countries:
             dfCountry = dfIndex[dfIndex['Country'] == cty]
             file_name = dfCountry['File'].values[0]
-            file_url = urllib.parse.urljoin(base_url, file_name)
+            file_url = urllib.parse.urljoin(base_url, file_name.replace(' ', '%20'))
             df = pd.read_csv(file_url)
             plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
 
@@ -600,7 +600,7 @@ def stSection5():
         for cty in countries2:
             dfCountry = dfIndex[dfIndex['Country'] == cty]
             file_name = dfCountry['File'].values[0]
-            file_url = urllib.parse.urljoin(base_url, file_name)
+            file_url = urllib.parse.urljoin(base_url, file_name.replace(' ', '%20'))
             df = pd.read_csv(file_url)
             plt.plot(df['Date'], df['ConfirmedNewMean'], label=df['Country'])
 
@@ -624,7 +624,7 @@ def stSection5():
         for cty in countries2:
             dfCountry = dfIndex[dfIndex['Country'] == cty]
             file_name = dfCountry['File'].values[0]
-            file_url = urllib.parse.urljoin(base_url, file_name)
+            file_url = urllib.parse.urljoin(base_url, file_name.replace(' ', '%20'))
             df = pd.read_csv(file_url)
             plt.plot(df['Date'], df['DeathsNewMean'], label=df['Country'])
 
