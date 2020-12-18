@@ -224,6 +224,7 @@ def stSection1():
     #with col1:
     stProvTable(dfTable)
     #with col2:
+    st.markdown('## ')
     stProvGraphs(dfProv)
     st.markdown('## ')
     stProvCaseTable(dfTable)
